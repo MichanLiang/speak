@@ -367,9 +367,9 @@ function handleEmailAuth() {
   const email = document.getElementById('auth-email').value.trim();
   const password = document.getElementById('auth-password').value;
   const errEl = document.getElementById('auth-error');
+  errEl.textContent = '';
   if (!email || !password) { errEl.textContent = '請填寫電子郵件與密碼'; return; }
   if (password.length < 6) { errEl.textContent = '密碼至少需要 6 個字元'; return; }
-  errEl.textContent = '';
   const btn = document.getElementById('auth-submit-btn');
   btn.disabled = true; btn.textContent = '處理中...';
   const auth = firebase.auth();
@@ -382,13 +382,20 @@ function handleEmailAuth() {
 
 function signInGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
+  document.getElementById('auth-error').textContent = '';
   firebase.auth().signInWithPopup(provider).catch(err => {
-    document.getElementById('auth-error').textContent = err.message;
+    console.error('Google sign-in error:', err);
+    const msg = err.code === 'auth/unauthorized-domain'
+      ? '此網域未授權，請在 Firebase Console → Authentication → Settings → Authorized domains 加入此網域'
+      : err.message;
+    document.getElementById('auth-error').textContent = msg;
   });
 }
 
 function signInAnonymous() {
+  document.getElementById('auth-error').textContent = '';
   firebase.auth().signInAnonymously().catch(err => {
+    console.error('Anonymous sign-in error:', err);
     document.getElementById('auth-error').textContent = err.message;
   });
 }
