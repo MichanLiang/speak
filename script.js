@@ -410,20 +410,24 @@ function speakText(text) {
   stopSpeech();
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'en-US';
-  utter.rate = Math.min(state.speed, 0.9);
-  let voices = speechSynthesis.getVoices();
-  if (!voices.length) {
-    speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
-  }
+  utter.rate = state.speed;
+  const accent = (state.prefs.accent || 'American').toLowerCase();
+  const langMap = {british:'en-GB', australian:'en-AU'};
+  const targetLang = langMap[accent] || 'en-US';
+  const pick = vs => {
+    const preferred = vs.find(v => v.lang.startsWith(targetLang) && (v.name.includes('Enhanced') || v.name.includes('Premium') || v.name.includes('Neural') || v.name.includes('Alex') || v.name.includes('Samantha') || v.name.includes('Daniel')));
+    return preferred || vs.find(v => v.lang.startsWith(targetLang)) || null;
+  };
+  const voices = speechSynthesis.getVoices();
   if (voices.length) {
-    const accent = (state.prefs.accent || 'American').toLowerCase();
-    const langMap = {british:'en-GB', australian:'en-AU'};
-    const targetLang = langMap[accent] || 'en-US';
-    const preferred = voices.find(v => v.lang === targetLang && (v.name.includes('Enhanced') || v.name.includes('Premium') || v.name.includes('Neural') || v.name.includes('Alex') || v.name.includes('Samantha')));
-    const fallback = voices.find(v => v.lang === targetLang);
-    utter.voice = preferred || fallback || null;
+    utter.voice = pick(voices);
+    speechSynthesis.speak(utter);
+  } else {
+    speechSynthesis.onvoiceschanged = () => {
+      utter.voice = pick(speechSynthesis.getVoices());
+      speechSynthesis.speak(utter);
+    };
   }
-  speechSynthesis.speak(utter);
 }
 
 function stopSpeech() {
