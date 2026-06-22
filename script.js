@@ -1,4 +1,5 @@
 let state = {
+  user: null,
   apiKey: '',
   scenario: 'ordering',
   scenarioLabel: '點餐',
@@ -105,7 +106,10 @@ function switchTab(btn, screenId) {
 }
 
 function doLogin() { showScreen('screen-home'); }
-function doLogout() { showScreen('screen-login'); }
+function doLogout() {
+  firebase.auth().signOut().catch(() => {});
+  showScreen('screen-login');
+}
 
 function selDiff(btn, level) {
   document.querySelectorAll('.diff-chip').forEach(b => b.classList.remove('sel'));

@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SpeakUp — AI 英語口說練習</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
 </head>
 <body>
 
@@ -12,21 +14,39 @@
 
 <!-- ═══════════════ LOGIN ═══════════════ -->
 <div id="screen-login" class="screen active" style="background:var(--bg)">
-  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 32px">
-    <div class="login-logo" id="login-logo" data-icon="mic"></div>
+  <div id="login-scroll" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 32px;overflow-y:auto">
+    <div class="login-logo" data-icon="mic"></div>
     <div class="login-title">SpeakUp English</div>
     <div class="login-sub">AI 英語口說練習夥伴<br>每天對話，讓英文流利自然</div>
-    <div class="feature-list">
-      <div class="feat"><div class="feat-icon" data-icon="messageCircle"></div>真實情境對話，AI 扮演對話夥伴</div>
-      <div class="feat"><div class="feat-icon" data-icon="pencil"></div>即時修正語法、提供更道地說法</div>
-      <div class="feat"><div class="feat-icon" data-icon="book"></div>個人單字本與精彩句子收藏</div>
-      <div class="feat"><div class="feat-icon" data-icon="target"></div>難度分級，由淺入深系統練習</div>
+
+    <!-- Email/Password form -->
+    <div id="login-form" style="width:100%;max-width:360px">
+      <div id="login-email-row">
+        <input class="auth-input" id="auth-email" type="email" placeholder="電子郵件" autocomplete="email" />
+      </div>
+      <div style="margin-top:10px">
+        <input class="auth-input" id="auth-password" type="password" placeholder="密碼（至少 6 碼）" autocomplete="current-password" />
+      </div>
+      <button class="start-btn" id="auth-submit-btn" onclick="handleEmailAuth()" style="margin-top:12px">登入</button>
+      <p style="text-align:center;font-size:13px;color:var(--text3);margin-top:2px">
+        <span id="auth-toggle-text">還沒有帳號？</span>
+        <button class="link-btn" onclick="toggleAuthMode()" id="auth-toggle-btn">註冊</button>
+      </p>
     </div>
-    <button class="google-btn" onclick="doLogin()">
+
+    <!-- Divider -->
+    <div class="login-divider"><span>或</span></div>
+
+    <!-- Google -->
+    <button class="google-btn" onclick="signInGoogle()" style="margin-bottom:12px">
       <svg class="google-svg" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.615 24 12.255 24z"/><path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 000 10.76l3.98-3.09z"/><path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.64 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
       以 Google 帳號繼續
     </button>
-    <p style="margin-top:16px;font-size:12px;color:var(--text3);text-align:center">Demo 模式：直接點擊即可進入使用</p>
+
+    <!-- Anonymous -->
+    <button class="ghost-btn" onclick="signInAnonymous()">以訪客身分體驗</button>
+
+    <div id="auth-error" class="login-error"></div>
   </div>
 </div>
 
@@ -178,10 +198,10 @@
   </div>
   <div class="settings-scroll">
     <div class="profile-card">
-      <div class="p-avatar" id="p-avatar">未</div>
+      <div class="p-avatar" id="p-avatar">?</div>
       <div>
-        <div class="p-name" id="p-name">未央</div>
-        <div class="p-email">demo@gmail.com</div>
+        <div class="p-name" id="p-name">載入中</div>
+        <div class="p-email" id="p-email"></div>
       </div>
       <button class="signout-btn" onclick="doLogout()">登出</button>
     </div>
@@ -296,6 +316,82 @@ document.querySelectorAll('[data-icon]').forEach(el => {
   const name = el.dataset.icon;
   if (icons[name]) el.innerHTML = icons[name];
 });
+
+firebase.initializeApp({
+  apiKey: "AIzaSyBvFZ-xBNoj57HCJ9ATTvVxvnI7TRCTV2k",
+  authDomain: "speak-37745.firebaseapp.com",
+  projectId: "speak-37745",
+  storageBucket: "speak-37745.firebasestorage.app",
+  messagingSenderId: "860882720671",
+  appId: "1:860882720671:web:e302ca11dd49c5bc5fcfaa"
+});
+
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    state.user = user;
+    updateProfileUI(user);
+    showScreen('screen-home');
+  } else {
+    state.user = null;
+    updateProfileUI(null);
+    showScreen('screen-login');
+  }
+});
+
+function updateProfileUI(user) {
+  const avatar = document.getElementById('p-avatar');
+  const name = document.getElementById('p-name');
+  const email = document.getElementById('p-email');
+  if (user) {
+    const displayName = user.displayName || user.email || '訪客';
+    avatar.textContent = displayName.charAt(0);
+    name.textContent = displayName;
+    email.textContent = user.email || (user.isAnonymous ? '匿名訪客' : '');
+  } else {
+    avatar.textContent = '?';
+    name.textContent = '未登入';
+    email.textContent = '';
+  }
+}
+
+let isRegisterMode = false;
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('auth-submit-btn').textContent = isRegisterMode ? '註冊' : '登入';
+  document.getElementById('auth-toggle-btn').textContent = isRegisterMode ? '登入' : '註冊';
+  document.getElementById('auth-toggle-text').textContent = isRegisterMode ? '已有帳號？' : '還沒有帳號？';
+  document.getElementById('auth-error').textContent = '';
+}
+
+function handleEmailAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  if (!email || !password) { errEl.textContent = '請填寫電子郵件與密碼'; return; }
+  if (password.length < 6) { errEl.textContent = '密碼至少需要 6 個字元'; return; }
+  errEl.textContent = '';
+  const btn = document.getElementById('auth-submit-btn');
+  btn.disabled = true; btn.textContent = '處理中...';
+  const auth = firebase.auth();
+  (isRegisterMode ? auth.createUserWithEmailAndPassword(email, password) : auth.signInWithEmailAndPassword(email, password))
+    .catch(err => {
+      errEl.textContent = err.message;
+      btn.disabled = false; btn.textContent = isRegisterMode ? '註冊' : '登入';
+    });
+}
+
+function signInGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).catch(err => {
+    document.getElementById('auth-error').textContent = err.message;
+  });
+}
+
+function signInAnonymous() {
+  firebase.auth().signInAnonymously().catch(err => {
+    document.getElementById('auth-error').textContent = err.message;
+  });
+}
 </script>
 <script src="script.js"></script>
 </body>
