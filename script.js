@@ -174,23 +174,27 @@ async function callAI(messages, isFirst=false) {
     return demoResponse(isFirst);
   }
   try {
-    const msgs = isFirst ? messages : [
-      ...state.history.map(m => ({role:m.role, content:m.content})),
+    const contents = isFirst ? messages : [
+      ...state.history.map(m => ({role:m.role, parts:[{text:m.content}]})),
       messages[messages.length-1]
     ];
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const body = {
+      contents: isFirst ? [{role:'user', parts:[{text:'(start the conversation)'}]}] : contents,
+      systemInstruction: {parts:[{text:state.systemPrompt}]},
+      generationConfig: {maxOutputTokens:1000}
+    };
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.apiKey}`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: state.systemPrompt,
-        messages: msgs
-      })
+      body: JSON.stringify(body)
     });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) {
+      const err = await res.text();
+      if (err.includes('API_KEY_INVALID')) throw new Error('API Key 無效，請確認是否正確');
+      throw new Error(err);
+    }
     const data = await res.json();
-    return data.content?.[0]?.text || '';
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   } catch(e) {
     console.error(e);
     return demoResponse(isFirst);
@@ -480,16 +484,17 @@ async function lookupWord(word) {
 
 async function lookupWordAI(word) {
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.apiKey}`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:600,
-        messages:[{role:'user', content:`Look up the English word: "${word}". Return ONLY valid JSON with this exact structure, no other text: {"word":"...","phonetic":"...","pos":"...","definition":"...","example":"...","synonyms":["...","..."]}`}]
+        contents:[{role:'user', parts:[{text:`Look up the English word: "${word}". Return ONLY valid JSON with this exact structure, no other text: {"word":"...","phonetic":"...","pos":"...","definition":"...","example":"...","synonyms":["...","..."]}`}]}],
+        generationConfig:{maxOutputTokens:600}
       })
     });
+    if (!res.ok) return {word, phonetic:'', pos:'', definition:'查詢失敗，請稍後再試', example:'', synonyms:[], source:'error'};
     const data = await res.json();
-    const text = data.content?.[0]?.text || '{}';
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     return {...JSON.parse(text.match(/\{[\s\S]*\}/)?.[0]||'{}'), source:'ai'};
   } catch(e) {
     return {word, phonetic:'', pos:'', definition:'查詢失敗，請稍後再試', example:'', synonyms:[], source:'error'};
