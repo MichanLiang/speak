@@ -442,55 +442,38 @@ async function doVocabSearch() {
 }
 
 async function lookupWord(word) {
+  if (state.apiKey) {
+    return await lookupWordAI(word);
+  }
   try {
     const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
     if (res.ok) {
       const data = await res.json();
       const entry = data[0];
-      const meanings = entry.meanings || [];
-      const firstMeaning = meanings[0] || {};
-      const def = firstMeaning.definitions?.[0] || {};
       const phonetic = entry.phonetics?.find(p=>p.text)?.text || entry.phonetic || '';
-      const synonyms = [...new Set([
-        ...(firstMeaning.synonyms||[]),
-        ...(def.synonyms||[])
-      ])].slice(0,5);
-      let translation = '';
-      if (state.apiKey) {
-        try {
-          const tr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.apiKey}`, {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({contents:[{role:'user', parts:[{text:`Translate "${word}" to Traditional Chinese. Return ONLY the Chinese word/phrase, nothing else.`}]}], generationConfig:{maxOutputTokens:30}})
-          });
-          if (tr.ok) {
-            const td = await tr.json();
-            translation = td.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
-          }
-        } catch(e) {}
-      }
+      const synonyms = [...new Set(entry.meanings?.flatMap(m=>m.synonyms||[]) || [])].slice(0,5);
+      const meanings = (entry.meanings||[]).flatMap(m =>
+        (m.definitions||[]).map(d => ({
+          pos: m.partOfSpeech || '',
+          definition: d.definition || '',
+          translation: ''
+        }))
+      );
       return {
         word: entry.word,
         phonetic,
-        pos: firstMeaning.partOfSpeech || '',
-        translation,
-        definition: def.definition || '',
-        example: def.example || '',
+        meanings,
+        example: (entry.meanings?.flatMap(m=>m.definitions||[]).find(d=>d.example)?.example) || '',
         synonyms,
         source: 'api'
       };
     }
   } catch(e) {}
 
-  if (state.apiKey) {
-    return await lookupWordAI(word);
-  }
-
   return {
     word,
     phonetic: '/.../',
-    pos: 'adjective',
-    translation: '',
-    definition: `（找不到「${word}」的資料，請確認拼字或設定 API Key 使用 AI 查詢）`,
+    meanings: [{pos:'', translation:'', definition:`（找不到「${word}」的資料）`}],
     example: '',
     synonyms: [],
     source: 'fallback'
@@ -503,18 +486,31 @@ async function lookupWordAI(word) {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        contents:[{role:'user', parts:[{text:`Look up the English word: "${word}". Return ONLY valid JSON with this exact structure, no other text: {"word":"...","phonetic":"...","pos":"...","translation":"...","definition":"...","example":"...","synonyms":["...","..."]}\n\ntranslation = Traditional Chinese translation of the word (just the word/phrase).\ndefinition = English definition.\nexample = ONE natural example sentence.`}]}],
-        generationConfig:{maxOutputTokens:600}
+        contents:[{role:'user', parts:[{text:`Look up the English word: "${word}". Return ONLY valid JSON, no other text:
+{
+  "word": "...",
+  "phonetic": "...",
+  "meanings": [
+    {"pos":"verb","definition":"English definition","translation":"中文翻譯"},
+    {"pos":"noun","definition":"English definition","translation":"中文翻譯"}
+  ],
+  "example": "ONE natural example sentence",
+  "synonyms": ["...","..."]
+}
+- List ALL common meanings (each different part of speech / sense).
+- translation = Traditional Chinese of that specific sense.
+- example = exactly ONE sentence.`}]}],
+        generationConfig:{maxOutputTokens:800}
       })
     });
-    if (!res.ok) return {word, phonetic:'', pos:'', translation:'', definition:'查詢失敗，請稍後再試', example:'', synonyms:[], source:'error'};
+    if (!res.ok) return {word, phonetic:'', meanings:[{pos:'',translation:'',definition:'查詢失敗，請稍後再試'}], example:'', synonyms:[], source:'error'};
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     return {...JSON.parse(text.match(/\{[\s\S]*\}/)?.[0]||'{}'), source:'ai'};
   } catch(e) {
-    return {word, phonetic:'', pos:'', translation:'', definition:'查詢失敗，請稍後再試', example:'', synonyms:[], source:'error'};
+    return {word, phonetic:'', meanings:[{pos:'',translation:'',definition:'查詢失敗，請稍後再試'}], example:'', synonyms:[], source:'error'};
   }
-}
+} 
 
 function renderVocabResult(r) {
   if (!r || !r.word) {
@@ -523,13 +519,18 @@ function renderVocabResult(r) {
   }
   const alreadySaved = state.words.some(w => w.word.toLowerCase() === r.word.toLowerCase());
   const synHtml = (r.synonyms||[]).map(s=>`<button class="syn-chip" onclick="document.getElementById('vocab-input').value='${escAttr(s)}';doVocabSearch()">${escHtml(s)}</button>`).join('');
+  const meaningsHtml = (r.meanings||[]).map(m => `
+    <div class="vocab-meaning">
+      ${m.pos ? `<span class="vocab-pos">${escHtml(m.pos)}</span>` : ''}
+      ${m.translation ? `<div class="vocab-trans">${escHtml(m.translation)}</div>` : ''}
+      <div class="vocab-def">${escHtml(m.definition)}</div>
+    </div>
+  `).join('');
   document.getElementById('vocab-content').innerHTML = `
     <div class="vocab-card">
       <div class="vocab-word">${escHtml(r.word)}</div>
       ${r.phonetic ? `<div class="vocab-phon">${escHtml(r.phonetic)}</div>` : ''}
-      ${r.pos ? `<span class="vocab-pos">${escHtml(r.pos)}</span>` : ''}
-      ${r.translation ? `<div class="vocab-trans">${escHtml(r.translation)}</div>` : ''}
-      <div class="vocab-def">${escHtml(r.definition)}</div>
+      <div class="vocab-meanings">${meaningsHtml}</div>
       ${r.example ? `<div class="vocab-ex">"${escHtml(r.example)}"</div>` : ''}
       <div class="vocab-actions">
         <button class="action-btn ${alreadySaved?'saved':''}" id="save-word-btn" onclick="saveWord(${JSON.stringify(JSON.stringify(r))})">
@@ -548,7 +549,7 @@ function saveWord(rJson) {
   if (state.words.some(w => w.word.toLowerCase() === r.word.toLowerCase())) {
     showToast('已在單字本中'); return;
   }
-  state.words.unshift({word:r.word, phonetic:r.phonetic||'', translation:r.translation||'', definition:r.definition||'', example:r.example||'', synonyms:r.synonyms||[], date:new Date().toLocaleDateString('zh-TW')});
+  state.words.unshift({word:r.word, phonetic:r.phonetic||'', meanings:r.meanings||[], example:r.example||'', synonyms:r.synonyms||[], date:new Date().toLocaleDateString('zh-TW')});
   saveStorage();
   showToast(`「${escHtml(r.word)}」已加入單字本 ${icon('check')}`);
   const btn = document.getElementById('save-word-btn');
@@ -578,19 +579,20 @@ function renderNotebook() {
     if (!state.words.length) {
       el.innerHTML = `<div class="nb-empty">${icon('book')} 還沒有收藏的單字<br>去單字查詢頁加入吧！</div>`; return;
     }
-    el.innerHTML = state.words.map((w,i) => `
+    el.innerHTML = state.words.map((w,i) => {
+      const def = w.meanings ? (w.meanings[0]?.translation || w.meanings[0]?.definition || '') : (w.translation || w.definition || '');
+      return `
       <div class="nb-item">
         <div class="nb-body">
           <div class="nb-word">${escHtml(w.word)}</div>
-          ${w.translation ? `<div class="nb-trans">${escHtml(w.translation)}</div>` : ''}
-          <div class="nb-def">${escHtml(w.definition)}</div>
+          ${def ? `<div class="nb-def">${escHtml(def)}</div>` : ''}
         </div>
         <div class="nb-actions">
           <button class="nb-icon" onclick="speakText('${escAttr(w.word)}')" title="發音">${icon('volume')}</button>
           <button class="nb-icon" onclick="deleteWord(${i})" title="刪除">${icon('trash')}</button>
         </div>
       </div>
-    `).join('');
+    `}).join('');
   } else {
     if (!state.sentences.length) {
       el.innerHTML = `<div class="nb-empty">${icon('messageCircle')} 還沒有收藏的句子<br>練習或查單字時可以收藏句子</div>`; return;
