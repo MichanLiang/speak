@@ -442,9 +442,8 @@ async function doVocabSearch() {
 }
 
 async function lookupWord(word) {
-  if (state.apiKey) {
-    return await lookupWordAI(word);
-  }
+  let result = null;
+
   try {
     const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
     if (res.ok) {
@@ -459,7 +458,7 @@ async function lookupWord(word) {
           translation: ''
         }))
       );
-      return {
+      result = {
         word: entry.word,
         phonetic,
         meanings,
@@ -469,6 +468,15 @@ async function lookupWord(word) {
       };
     }
   } catch(e) {}
+
+  if (state.apiKey) {
+    const ai = await lookupWordAI(word);
+    if (ai && ai.meanings && ai.meanings.length > 0 && ai.meanings[0].definition && ai.meanings[0].definition !== '查詢失敗，請稍後再試') {
+      result = ai;
+    }
+  }
+
+  if (result) return result;
 
   return {
     word,
