@@ -87,6 +87,13 @@ function applyPrefs() {
   if (p.speed) document.getElementById('pref-speed').value = p.speed;
   if (p.subtitles === false) document.getElementById('toggle-sub').classList.remove('on');
   if (p.feedback === false) document.getElementById('toggle-feedback').classList.remove('on');
+  if (p.themeColor) {
+    document.documentElement.style.setProperty('--primary', p.themeColor);
+    document.documentElement.style.setProperty('--primary-hover', p.themeColor);
+    document.querySelectorAll('.cp').forEach(c => {
+      if ((c.getAttribute('style')||'').replace(/background:?\s*/i,'').trim().split(';')[0] === p.themeColor) c.classList.add('active');
+    });
+  }
 }
 
 function showScreen(id) {
@@ -641,6 +648,8 @@ function setColor(hex, el) {
   el.classList.add('active');
   document.documentElement.style.setProperty('--primary', hex);
   document.documentElement.style.setProperty('--primary-hover', hex);
+  state.prefs.themeColor = hex;
+  saveStorage();
 }
 
 function showToast(msg) {
