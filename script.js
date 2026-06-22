@@ -183,7 +183,7 @@ async function initConversation() {
   if (firstMsg) {
     const {reply} = parseAIResponse(firstMsg);
     appendMsg('ai', reply);
-    state.history.push({role:'assistant', content: firstMsg});
+    state.history.push({role:'assistant', content: reply});
     trimHistory();
     if (document.getElementById('toggle-sub').classList.contains('on')) speakText(reply);
   }
@@ -280,7 +280,7 @@ async function sendUserMsg() {
   removeTyping();
 
   const {reply, feedback} = parseAIResponse(raw);
-  state.history.push({role:'assistant', content: raw});
+  state.history.push({role:'assistant', content: reply});
   trimHistory();
 
   const showFeedback = document.getElementById('toggle-feedback').classList.contains('on');
