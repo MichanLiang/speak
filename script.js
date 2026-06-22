@@ -457,7 +457,7 @@ async function lookupWord(word) {
           definition: d.definition || '',
           translation: ''
         }))
-      );
+      ).slice(0, 3);
       result = {
         word: entry.word,
         phonetic,
@@ -469,14 +469,24 @@ async function lookupWord(word) {
     }
   } catch(e) {}
 
-  if (state.apiKey) {
+  if (state.apiKey && result) {
     const ai = await lookupWordAI(word);
-    if (ai && ai.meanings && ai.meanings.length > 0 && ai.meanings[0].definition && ai.meanings[0].definition !== '查詢失敗，請稍後再試') {
-      result = ai;
+    if (ai && ai.meanings && ai.meanings.length > 0 && !ai.meanings[0].definition.startsWith('查詢失敗')) {
+      result.meanings = ai.meanings.slice(0, 3);
+      if (ai.example) result.example = ai.example;
+      if (ai.synonyms && ai.synonyms.length) result.synonyms = ai.synonyms;
+      result.source = 'ai';
     }
   }
 
   if (result) return result;
+
+  if (state.apiKey) {
+    const ai = await lookupWordAI(word);
+    if (ai && ai.meanings && ai.meanings.length > 0 && !ai.meanings[0].definition.startsWith('查詢失敗')) {
+      return {...ai, source:'ai'};
+    }
+  }
 
   return {
     word,
@@ -505,7 +515,7 @@ async function lookupWordAI(word) {
   "example": "ONE natural example sentence",
   "synonyms": ["...","..."]
 }
-- List ALL common meanings (each different part of speech / sense).
+- List up to 3 most common meanings only.
 - translation = Traditional Chinese of that specific sense.
 - example = exactly ONE sentence.`}]}],
         generationConfig:{maxOutputTokens:800}
