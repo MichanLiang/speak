@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpeakUp — AI 英語口說練習</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="screen-login" class="screen active" style="background:var(--bg)">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 32px">
+    <div class="login-logo">🎙️</div>
+    <div class="login-title">SpeakUp English</div>
+    <div class="login-sub">AI 英語口說練習夥伴<br>每天對話，讓英文流利自然</div>
+    <div class="feature-list">
+      <div class="feat"><div class="feat-icon">💬</div>真實情境對話，AI 扮演對話夥伴</div>
+      <div class="feat"><div class="feat-icon">✏️</div>即時修正語法、提供更道地說法</div>
+      <div class="feat"><div class="feat-icon">📖</div>個人單字本與精彩句子收藏</div>
+      <div class="feat"><div class="feat-icon">🎯</div>難度分級，由淺入深系統練習</div>
+    </div>
+    <button class="google-btn" onclick="doLogin()">
+      <svg class="google-svg" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.615 24 12.255 24z"/><path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 000 10.76l3.98-3.09z"/><path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.64 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+      以 Google 帳號繼續
+    </button>
+    <p style="margin-top:16px;font-size:12px;color:var(--text3);text-align:center">Demo 模式：直接點擊即可進入使用</p>
+  </div>
+</div>
+
+<!-- ═══════════════ HOME ═══════════════ -->
+<div id="screen-home" class="screen">
+  <div class="app-header">
+    <div class="header-title"><div class="dot"></div>SpeakUp</div>
+    <button class="icon-btn" onclick="showScreen('screen-settings')" title="設定">⚙️</button>
+  </div>
+  <div class="home-scroll">
+    <div class="section-head" style="margin-bottom:10px">選擇難度</div>
+    <div class="diff-row">
+      <button class="diff-chip" onclick="selDiff(this,'beginner')">初級<small>Beginner</small></button>
+      <button class="diff-chip sel" onclick="selDiff(this,'intermediate')">中級<small>Intermediate</small></button>
+      <button class="diff-chip" onclick="selDiff(this,'advanced')">進階<small>Advanced</small></button>
+    </div>
+    <div class="section-head">選擇情境</div>
+    <div class="scenario-grid" style="margin-top:10px">
+      <div class="sc-card sel" onclick="selScenario(this,'ordering')"><div class="sc-icon">🍽️</div><span>點餐</span></div>
+      <div class="sc-card" onclick="selScenario(this,'interview')"><div class="sc-icon">💼</div><span>職場面試</span></div>
+      <div class="sc-card" onclick="selScenario(this,'workplace')"><div class="sc-icon">🏢</div><span>工作場合</span></div>
+      <div class="sc-card" onclick="selScenario(this,'customs')"><div class="sc-icon">✈️</div><span>海關過關</span></div>
+      <div class="sc-card" onclick="selScenario(this,'casual')"><div class="sc-icon">💭</div><span>自由閒聊</span></div>
+      <div class="sc-card" onclick="selScenario(this,'custom')"><div class="sc-icon">✏️</div><span>自訂情境</span></div>
+    </div>
+    <input id="custom-topic" class="custom-input" placeholder="描述你想練習的情境，例如：在咖啡廳點飲料..." />
+    <button class="start-btn" onclick="startPractice()">🎙️ 開始練習</button>
+    <div class="section-head" style="margin-bottom:10px">最近練習</div>
+    <div class="recent-grid">
+      <div class="rc-card" onclick="startPractice()">
+        <div class="rc-label">3 天前</div>
+        <div class="rc-title">職場面試</div>
+        <div class="rc-meta"><span class="score-pill">82 分</span><span style="font-size:11px;color:var(--text3)">中級</span></div>
+      </div>
+      <div class="rc-card" onclick="startPractice()">
+        <div class="rc-label">5 天前</div>
+        <div class="rc-title">點餐情境</div>
+        <div class="rc-meta"><span class="score-pill">75 分</span><span style="font-size:11px;color:var(--text3)">初級</span></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab(this,'screen-home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>練習
+    </button>
+    <button class="nav-item" onclick="switchTab(this,'screen-vocab')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>單字
+    </button>
+    <button class="nav-item" onclick="switchTab(this,'screen-notebook')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>筆記本
+    </button>
+    <button class="nav-item" onclick="switchTab(this,'screen-settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>我的
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════ PRACTICE ═══════════════ -->
+<div id="screen-practice" class="screen">
+  <div class="practice-top">
+    <button class="back-btn" onclick="leavePractice()">← 返回</button>
+    <div class="tag-row">
+      <span class="tag tag-blue" id="tag-scenario">點餐</span>
+      <span class="tag tag-gray" id="tag-diff">中級</span>
+    </div>
+  </div>
+  <div class="chat-wrap" id="chat-wrap"></div>
+  <div class="practice-bottom">
+    <div class="speed-row">
+      <span class="speed-label">語速</span>
+      <div class="speed-btns">
+        <button class="spd" onclick="setSpeed(this,0.75)">0.75×</button>
+        <button class="spd active" onclick="setSpeed(this,1.0)">1.0×</button>
+        <button class="spd" onclick="setSpeed(this,1.25)">1.25×</button>
+      </div>
+    </div>
+    <div class="input-row">
+      <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="按住說話">🎙️</button>
+      <div class="right-input">
+        <div class="transcript" id="transcript" contenteditable="true" data-placeholder="按麥克風說話，或直接輸入..." oninput="onTranscriptInput()"></div>
+        <button class="send-btn" id="send-btn" onclick="sendUserMsg()" disabled>送出 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ VOCAB ═══════════════ -->
+<div id="screen-vocab" class="screen">
+  <div class="app-header">
+    <div class="header-title"><div class="dot"></div>單字查詢</div>
+  </div>
+  <div class="search-bar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="vocab-input" placeholder="輸入英文單字..." autocomplete="off" oninput="handleVocabInput(this.value)" onkeydown="if(event.key==='Enter')doVocabSearch()">
+    </div>
+  </div>
+  <div class="vocab-scroll" id="vocab-content">
+    <div class="vocab-empty"><div class="em-icon">📚</div><div>輸入單字開始查詢</div></div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="switchTab(this,'screen-home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>練習
+    </button>
+    <button class="nav-item active" onclick="switchTab(this,'screen-vocab')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>單字
+    </button>
+    <button class="nav-item" onclick="switchTab(this,'screen-notebook')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>筆記本
+    </button>
+    <button class="nav-item" onclick="switchTab(this,'screen-settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>我的
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════ NOTEBOOK ═══════════════ -->
+<div id="screen-notebook" class="screen">
+  <div class="app-header">
+    <div class="header-title"><div class="dot"></div>我的筆記本</div>
+  </div>
+  <div class="nb-tabs">
+    <button class="nb-tab active" onclick="switchNbTab(this,'words')">📝 單字本</button>
+    <button class="nb-tab" onclick="switchNbTab(this,'sentences')">💬 句子本</button>
+  </div>
+  <div class="nb-scroll" id="nb-content"></div>
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="switchTab(this,'screen-home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>練習
+    </button>
+    <button class="nav-item" onclick="switchTab(this,'screen-vocab')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>單字
+    </button>
+    <button class="nav-item active" onclick="switchTab(this,'screen-notebook')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>筆記本
+    </button>
+    <button class="nav-item" onclick="switchTab(this,'screen-settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>我的
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════ SETTINGS ═══════════════ -->
+<div id="screen-settings" class="screen">
+  <div class="app-header">
+    <div class="header-title"><div class="dot"></div>設定</div>
+    <button class="icon-btn" onclick="showScreen('screen-home')" title="返回">✕</button>
+  </div>
+  <div class="settings-scroll">
+    <div class="profile-card">
+      <div class="p-avatar" id="p-avatar">未</div>
+      <div>
+        <div class="p-name" id="p-name">未央</div>
+        <div class="p-email">demo@gmail.com</div>
+      </div>
+      <button class="signout-btn" onclick="doLogout()">登出</button>
+    </div>
+
+    <div class="api-banner" id="api-banner">
+      ⚠️ 填入你的 <strong>Anthropic API Key</strong> 才能啟用 AI 對話功能。<a href="https://console.anthropic.com" target="_blank">取得 API Key →</a>
+      <div class="api-key-row">
+        <input class="api-key-input" id="api-key-input" type="password" placeholder="sk-ant-..." />
+        <button class="save-key-btn" onclick="saveApiKey()">儲存</button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-label">語言與口音</div>
+      <div class="setting-row">
+        <div><div class="s-label">練習語言</div></div>
+        <select class="s-select s-ctrl" id="pref-lang" onchange="savePrefs()">
+          <option value="English">英文</option>
+          <option value="Japanese">日文</option>
+          <option value="Spanish">西班牙文</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div><div class="s-label">AI 口音</div><div class="s-sub">AI 說話時的腔調</div></div>
+        <select class="s-select s-ctrl" id="pref-accent" onchange="savePrefs()">
+          <option value="American">美式英語</option>
+          <option value="British">英式英語</option>
+          <option value="Australian">澳洲英語</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-label">練習偏好</div>
+      <div class="setting-row">
+        <div><div class="s-label">預設難度</div></div>
+        <select class="s-select s-ctrl" id="pref-diff" onchange="savePrefs()">
+          <option value="beginner">初級</option>
+          <option value="intermediate" selected>中級</option>
+          <option value="advanced">進階</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div><div class="s-label">預設語速</div></div>
+        <select class="s-select s-ctrl" id="pref-speed" onchange="savePrefs()">
+          <option value="0.75">0.75×</option>
+          <option value="1" selected>1.0×</option>
+          <option value="1.25">1.25×</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div><div class="s-label">顯示文字字幕</div><div class="s-sub">對話時同步顯示</div></div>
+        <button class="toggle on s-ctrl" id="toggle-sub" onclick="this.classList.toggle('on');savePrefs()"></button>
+      </div>
+      <div class="setting-row">
+        <div><div class="s-label">顯示 AI 建議</div><div class="s-sub">每句後給修正回饋</div></div>
+        <button class="toggle on s-ctrl" id="toggle-feedback" onclick="this.classList.toggle('on');savePrefs()"></button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-label">介面</div>
+      <div class="setting-row">
+        <div><div class="s-label">主題色</div></div>
+        <div class="color-picks s-ctrl">
+          <div class="cp active" style="background:#4A6CF7" onclick="setColor('#4A6CF7',this)" title="藍紫"></div>
+          <div class="cp" style="background:#1D9E75" onclick="setColor('#1D9E75',this)" title="綠"></div>
+          <div class="cp" style="background:#D85A30" onclick="setColor('#D85A30',this)" title="橘"></div>
+          <div class="cp" style="background:#D4537E" onclick="setColor('#D4537E',this)" title="粉"></div>
+        </div>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
