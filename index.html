@@ -13,14 +13,14 @@
 <!-- ═══════════════ LOGIN ═══════════════ -->
 <div id="screen-login" class="screen active" style="background:var(--bg)">
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 32px">
-    <div class="login-logo">🎙️</div>
+    <div class="login-logo" id="login-logo" data-icon="mic"></div>
     <div class="login-title">SpeakUp English</div>
     <div class="login-sub">AI 英語口說練習夥伴<br>每天對話，讓英文流利自然</div>
     <div class="feature-list">
-      <div class="feat"><div class="feat-icon">💬</div>真實情境對話，AI 扮演對話夥伴</div>
-      <div class="feat"><div class="feat-icon">✏️</div>即時修正語法、提供更道地說法</div>
-      <div class="feat"><div class="feat-icon">📖</div>個人單字本與精彩句子收藏</div>
-      <div class="feat"><div class="feat-icon">🎯</div>難度分級，由淺入深系統練習</div>
+      <div class="feat"><div class="feat-icon" data-icon="messageCircle"></div>真實情境對話，AI 扮演對話夥伴</div>
+      <div class="feat"><div class="feat-icon" data-icon="pencil"></div>即時修正語法、提供更道地說法</div>
+      <div class="feat"><div class="feat-icon" data-icon="book"></div>個人單字本與精彩句子收藏</div>
+      <div class="feat"><div class="feat-icon" data-icon="target"></div>難度分級，由淺入深系統練習</div>
     </div>
     <button class="google-btn" onclick="doLogin()">
       <svg class="google-svg" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.615 24 12.255 24z"/><path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 000 10.76l3.98-3.09z"/><path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.64 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
@@ -34,7 +34,7 @@
 <div id="screen-home" class="screen">
   <div class="app-header">
     <div class="header-title"><div class="dot"></div>SpeakUp</div>
-    <button class="icon-btn" onclick="showScreen('screen-settings')" title="設定">⚙️</button>
+    <button class="icon-btn" onclick="showScreen('screen-settings')" title="設定" data-icon="settings"></button>
   </div>
   <div class="home-scroll">
     <div class="section-head" style="margin-bottom:10px">選擇難度</div>
@@ -45,15 +45,15 @@
     </div>
     <div class="section-head">選擇情境</div>
     <div class="scenario-grid" style="margin-top:10px">
-      <div class="sc-card sel" onclick="selScenario(this,'ordering')"><div class="sc-icon">🍽️</div><span>點餐</span></div>
-      <div class="sc-card" onclick="selScenario(this,'interview')"><div class="sc-icon">💼</div><span>職場面試</span></div>
-      <div class="sc-card" onclick="selScenario(this,'workplace')"><div class="sc-icon">🏢</div><span>工作場合</span></div>
-      <div class="sc-card" onclick="selScenario(this,'customs')"><div class="sc-icon">✈️</div><span>海關過關</span></div>
-      <div class="sc-card" onclick="selScenario(this,'casual')"><div class="sc-icon">💭</div><span>自由閒聊</span></div>
-      <div class="sc-card" onclick="selScenario(this,'custom')"><div class="sc-icon">✏️</div><span>自訂情境</span></div>
+      <div class="sc-card sel" onclick="selScenario(this,'ordering')"><div class="sc-icon" data-icon="coffee"></div><span>點餐</span></div>
+      <div class="sc-card" onclick="selScenario(this,'interview')"><div class="sc-icon" data-icon="briefcase"></div><span>職場面試</span></div>
+      <div class="sc-card" onclick="selScenario(this,'workplace')"><div class="sc-icon" data-icon="building"></div><span>工作場合</span></div>
+      <div class="sc-card" onclick="selScenario(this,'customs')"><div class="sc-icon" data-icon="plane"></div><span>海關過關</span></div>
+      <div class="sc-card" onclick="selScenario(this,'casual')"><div class="sc-icon" data-icon="messageSquare"></div><span>自由閒聊</span></div>
+      <div class="sc-card" onclick="selScenario(this,'custom')"><div class="sc-icon" data-icon="pencil"></div><span>自訂情境</span></div>
     </div>
     <input id="custom-topic" class="custom-input" placeholder="描述你想練習的情境，例如：在咖啡廳點飲料..." />
-    <button class="start-btn" onclick="startPractice()">🎙️ 開始練習</button>
+    <button class="start-btn" onclick="startPractice()"><span data-icon="mic" style="vertical-align:middle"></span> 開始練習</button>
     <div class="section-head" style="margin-bottom:10px">最近練習</div>
     <div class="recent-grid">
       <div class="rc-card" onclick="startPractice()">
@@ -88,7 +88,7 @@
 <!-- ═══════════════ PRACTICE ═══════════════ -->
 <div id="screen-practice" class="screen">
   <div class="practice-top">
-    <button class="back-btn" onclick="leavePractice()">← 返回</button>
+    <button class="back-btn" onclick="leavePractice()"><span data-icon="arrowLeft" style="display:inline-block;vertical-align:middle"></span> 返回</button>
     <div class="tag-row">
       <span class="tag tag-blue" id="tag-scenario">點餐</span>
       <span class="tag tag-gray" id="tag-diff">中級</span>
@@ -105,10 +105,10 @@
       </div>
     </div>
     <div class="input-row">
-      <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="按住說話">🎙️</button>
+      <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="按住說話" data-icon="mic"></button>
       <div class="right-input">
         <div class="transcript" id="transcript" contenteditable="true" data-placeholder="按麥克風說話，或直接輸入..." oninput="onTranscriptInput()"></div>
-        <button class="send-btn" id="send-btn" onclick="sendUserMsg()" disabled>送出 →</button>
+        <button class="send-btn" id="send-btn" onclick="sendUserMsg()" disabled>送出 <span data-icon="send" style="display:inline-block;vertical-align:middle"></span></button>
       </div>
     </div>
   </div>
@@ -121,12 +121,12 @@
   </div>
   <div class="search-bar">
     <div class="search-wrap">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon" data-icon="search"></span>
       <input type="text" id="vocab-input" placeholder="輸入英文單字..." autocomplete="off" oninput="handleVocabInput(this.value)" onkeydown="if(event.key==='Enter')doVocabSearch()">
     </div>
   </div>
   <div class="vocab-scroll" id="vocab-content">
-    <div class="vocab-empty"><div class="em-icon">📚</div><div>輸入單字開始查詢</div></div>
+    <div class="vocab-empty"><div class="em-icon" data-icon="book"></div><div>輸入單字開始查詢</div></div>
   </div>
   <nav class="bottom-nav">
     <button class="nav-item" onclick="switchTab(this,'screen-home')">
@@ -150,8 +150,8 @@
     <div class="header-title"><div class="dot"></div>我的筆記本</div>
   </div>
   <div class="nb-tabs">
-    <button class="nb-tab active" onclick="switchNbTab(this,'words')">📝 單字本</button>
-    <button class="nb-tab" onclick="switchNbTab(this,'sentences')">💬 句子本</button>
+    <button class="nb-tab active" onclick="switchNbTab(this,'words')"><span data-icon="bookOpen" style="vertical-align:middle"></span> 單字本</button>
+    <button class="nb-tab" onclick="switchNbTab(this,'sentences')"><span data-icon="messageCircle" style="vertical-align:middle"></span> 句子本</button>
   </div>
   <div class="nb-scroll" id="nb-content"></div>
   <nav class="bottom-nav">
@@ -174,7 +174,7 @@
 <div id="screen-settings" class="screen">
   <div class="app-header">
     <div class="header-title"><div class="dot"></div>設定</div>
-    <button class="icon-btn" onclick="showScreen('screen-home')" title="返回">✕</button>
+    <button class="icon-btn" onclick="showScreen('screen-home')" title="返回" data-icon="close"></button>
   </div>
   <div class="settings-scroll">
     <div class="profile-card">
@@ -187,7 +187,7 @@
     </div>
 
     <div class="api-banner" id="api-banner">
-      ⚠️ 填入你的 <strong>Anthropic API Key</strong> 才能啟用 AI 對話功能。<a href="https://console.anthropic.com" target="_blank">取得 API Key →</a>
+      <span data-icon="alertTriangle" style="flex-shrink:0;margin-top:2px"></span> 填入你的 <strong>Anthropic API Key</strong> 才能啟用 AI 對話功能。<a href="https://console.anthropic.com" target="_blank">取得 API Key <span data-icon="arrowRight" style="display:inline-block;vertical-align:middle"></span></a>
       <div class="api-key-row">
         <input class="api-key-input" id="api-key-input" type="password" placeholder="sk-ant-..." />
         <button class="save-key-btn" onclick="saveApiKey()">儲存</button>
@@ -260,6 +260,43 @@
 
 <div class="toast" id="toast"></div>
 
+<script>
+const icons={
+  mic:'<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>',
+  stop:'<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect width="16" height="16" x="4" y="4" rx="2"/></svg>',
+  book:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  messageCircle:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  pencil:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
+  target:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  coffee:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>',
+  briefcase:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+  building:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/></svg>',
+  plane:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>',
+  messageSquare:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
+  search:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  settings:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  close:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  alertTriangle:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  arrowLeft:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+  bookOpen:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  volume:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
+  robot:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16.01"/><line x1="16" y1="16" x2="16" y2="16.01"/></svg>',
+  smile:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+  star:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  send:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+  arrowRight:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  check:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  checkCircle:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  dots:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+};
+document.querySelectorAll('[data-icon]').forEach(el => {
+  const name = el.dataset.icon;
+  if (icons[name]) el.innerHTML = icons[name];
+});
+</script>
 <script src="script.js"></script>
 </body>
 </html>

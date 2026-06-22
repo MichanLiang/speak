@@ -43,7 +43,7 @@ function loadFromStorage() {
       document.getElementById('api-key-input').value = state.apiKey;
       document.getElementById('api-banner').style.background = 'var(--success-bg)';
       document.getElementById('api-banner').style.color = 'var(--success)';
-      document.getElementById('api-banner').innerHTML = '✅ API Key 已設定，AI 功能已啟用。';
+      document.getElementById('api-banner').innerHTML = `${icon('checkCircle')} API Key 已設定，AI 功能已啟用。`;
     }
     applyPrefs();
   } catch(e) {}
@@ -64,8 +64,8 @@ function saveApiKey() {
   localStorage.setItem('su_apikey', key);
   document.getElementById('api-banner').style.background = 'var(--success-bg)';
   document.getElementById('api-banner').style.color = 'var(--success)';
-  document.getElementById('api-banner').innerHTML = '✅ API Key 已儲存，AI 功能已啟用！';
-  showToast('API Key 已儲存 ✓');
+  document.getElementById('api-banner').innerHTML = `${icon('checkCircle')} API Key 已儲存，AI 功能已啟用！`;
+  showToast(`API Key 已儲存 ${icon('check')}`);
 }
 
 function savePrefs() {
@@ -260,7 +260,7 @@ function appendMsg(role, text, feedback=null) {
 
   const avatar = document.createElement('div');
   avatar.className = 'avatar';
-  avatar.textContent = role === 'ai' ? '🤖' : '😊';
+  avatar.innerHTML = role === 'ai' ? icon('robot') : icon('smile');
 
   const inner = document.createElement('div');
   const bubble = document.createElement('div');
@@ -291,7 +291,7 @@ function buildFeedbackEl(fb) {
 
   const el = document.createElement('div');
   el.className = 'feedback';
-  el.innerHTML = `<div class="fb-head">✨ AI 建議</div>`;
+  el.innerHTML = `<div class="fb-head">${icon('star')} AI 建議</div>`;
 
   if (fb.praise) {
     el.innerHTML += `<div class="fb-row"><div class="fb-dot ok"></div><span style="color:var(--success)">${escHtml(fb.praise)}</span></div>`;
@@ -318,7 +318,7 @@ function showTyping() {
   const div = document.createElement('div');
   div.className = 'msg ai';
   div.id = 'typing-indicator';
-  div.innerHTML = `<div class="avatar">🤖</div><div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  div.innerHTML = `<div class="avatar">${icon('robot')}</div><div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
   wrap.appendChild(div);
   wrap.scrollTop = wrap.scrollHeight;
 }
@@ -348,13 +348,13 @@ function setupSpeechRecognition() {
     if (state.isRecording) {
       state.isRecording = false;
       document.getElementById('mic-btn').classList.remove('rec');
-      document.getElementById('mic-btn').textContent = '🎙️';
+      document.getElementById('mic-btn').innerHTML = icon('mic');
     }
   };
   state.recognition.onerror = () => {
     state.isRecording = false;
     document.getElementById('mic-btn').classList.remove('rec');
-    document.getElementById('mic-btn').textContent = '🎙️';
+    document.getElementById('mic-btn').innerHTML = icon('mic');
   };
 }
 
@@ -370,7 +370,7 @@ function startRecognition() {
   if (!state.recognition) { showToast('此瀏覽器不支援語音輸入'); return; }
   state.isRecording = true;
   document.getElementById('mic-btn').classList.add('rec');
-  document.getElementById('mic-btn').textContent = '⏹️';
+  document.getElementById('mic-btn').innerHTML = icon('stop');
   document.getElementById('transcript').textContent = '';
   document.getElementById('send-btn').disabled = true;
   try { state.recognition.start(); } catch(e) {}
@@ -380,7 +380,7 @@ function stopRecognition() {
   if (!state.recognition) return;
   state.isRecording = false;
   document.getElementById('mic-btn').classList.remove('rec');
-  document.getElementById('mic-btn').textContent = '🎙️';
+  document.getElementById('mic-btn').innerHTML = icon('mic');
   try { state.recognition.stop(); } catch(e) {}
 }
 
@@ -419,7 +419,7 @@ function setSpeed(btn, val) {
 function handleVocabInput(val) {
   clearTimeout(state.vocabTimer);
   if (!val.trim()) {
-    document.getElementById('vocab-content').innerHTML = '<div class="vocab-empty"><div class="em-icon">📚</div><div>輸入單字開始查詢</div></div>';
+    document.getElementById('vocab-content').innerHTML = `<div class="vocab-empty"><div class="em-icon">${icon('book')}</div><div>輸入單字開始查詢</div></div>`;
     return;
   }
   state.vocabTimer = setTimeout(() => doVocabSearch(), 600);
@@ -428,7 +428,7 @@ function handleVocabInput(val) {
 async function doVocabSearch() {
   const word = document.getElementById('vocab-input').value.trim();
   if (!word) return;
-  document.getElementById('vocab-content').innerHTML = '<div class="vocab-empty"><div class="em-icon">⏳</div><div>查詢中...</div></div>';
+  document.getElementById('vocab-content').innerHTML = `<div class="vocab-empty"><div class="em-icon">${icon('clock')}</div><div>查詢中...</div></div>`;
   const result = await lookupWord(word);
   renderVocabResult(result);
 }
@@ -494,7 +494,7 @@ async function lookupWordAI(word) {
 
 function renderVocabResult(r) {
   if (!r || !r.word) {
-    document.getElementById('vocab-content').innerHTML = '<div class="vocab-empty"><div class="em-icon">😕</div><div>找不到這個單字</div></div>';
+    document.getElementById('vocab-content').innerHTML = `<div class="vocab-empty"><div class="em-icon">${icon('search')}</div><div>找不到這個單字</div></div>`;
     return;
   }
   const alreadySaved = state.words.some(w => w.word.toLowerCase() === r.word.toLowerCase());
@@ -508,10 +508,10 @@ function renderVocabResult(r) {
       ${r.example ? `<div class="vocab-ex">"${escHtml(r.example)}"</div>` : ''}
       <div class="vocab-actions">
         <button class="action-btn ${alreadySaved?'saved':''}" id="save-word-btn" onclick="saveWord(${JSON.stringify(JSON.stringify(r))})">
-          ${alreadySaved ? '✅ 已加入單字本' : '📖 加入單字本'}
+          ${alreadySaved ? `${icon('check')} 已加入單字本` : `${icon('plus')} 加入單字本`}
         </button>
-        ${r.example ? `<button class="action-btn" onclick="saveSentence('${escAttr(r.example)}','單字查詢')">💬 收藏例句</button>` : ''}
-        <button class="action-btn" onclick="speakText('${escAttr(r.word)}')">🔊 發音</button>
+        ${r.example ? `<button class="action-btn" onclick="saveSentence('${escAttr(r.example)}','單字查詢')">${icon('messageCircle')} 收藏例句</button>` : ''}
+        <button class="action-btn" onclick="speakText('${escAttr(r.word)}')">${icon('volume')} 發音</button>
       </div>
       ${synHtml ? `<div class="syn-section"><div class="syn-label">同義詞</div><div class="syn-chips">${synHtml}</div></div>` : ''}
     </div>
@@ -525,9 +525,9 @@ function saveWord(rJson) {
   }
   state.words.unshift({word:r.word, phonetic:r.phonetic||'', definition:r.definition||'', example:r.example||'', synonyms:r.synonyms||[], date:new Date().toLocaleDateString('zh-TW')});
   saveStorage();
-  showToast(`「${r.word}」已加入單字本 ✓`);
+  showToast(`「${escHtml(r.word)}」已加入單字本 ${icon('check')}`);
   const btn = document.getElementById('save-word-btn');
-  if (btn) { btn.textContent = '✅ 已加入單字本'; btn.classList.add('saved'); }
+  if (btn) { btn.innerHTML = `${icon('check')} 已加入單字本`; btn.classList.add('saved'); }
   renderNotebook();
 }
 
@@ -535,7 +535,7 @@ function saveSentence(text, context) {
   if (state.sentences.some(s => s.text === text)) { showToast('已在句子本中'); return; }
   state.sentences.unshift({text, context, date: new Date().toLocaleDateString('zh-TW')});
   saveStorage();
-  showToast('句子已收藏 ✓');
+  showToast(`句子已收藏 ${icon('check')}`);
   renderNotebook();
 }
 
@@ -551,7 +551,7 @@ function renderNotebook() {
   if (!el) return;
   if (state.nbTab === 'words') {
     if (!state.words.length) {
-      el.innerHTML = '<div class="nb-empty">📖 還沒有收藏的單字<br>去單字查詢頁加入吧！</div>'; return;
+      el.innerHTML = `<div class="nb-empty">${icon('book')} 還沒有收藏的單字<br>去單字查詢頁加入吧！</div>`; return;
     }
     el.innerHTML = state.words.map((w,i) => `
       <div class="nb-item">
@@ -560,14 +560,14 @@ function renderNotebook() {
           <div class="nb-def">${escHtml(w.definition)}</div>
         </div>
         <div class="nb-actions">
-          <button class="nb-icon" onclick="speakText('${escAttr(w.word)}')" title="發音">🔊</button>
-          <button class="nb-icon" onclick="deleteWord(${i})" title="刪除">🗑️</button>
+          <button class="nb-icon" onclick="speakText('${escAttr(w.word)}')" title="發音">${icon('volume')}</button>
+          <button class="nb-icon" onclick="deleteWord(${i})" title="刪除">${icon('trash')}</button>
         </div>
       </div>
     `).join('');
   } else {
     if (!state.sentences.length) {
-      el.innerHTML = '<div class="nb-empty">💬 還沒有收藏的句子<br>練習或查單字時可以收藏句子</div>'; return;
+      el.innerHTML = `<div class="nb-empty">${icon('messageCircle')} 還沒有收藏的句子<br>練習或查單字時可以收藏句子</div>`; return;
     }
     el.innerHTML = state.sentences.map((s,i) => `
       <div class="nb-item">
@@ -576,7 +576,7 @@ function renderNotebook() {
           <div class="nb-meta">${escHtml(s.context)} · ${escHtml(s.date)}</div>
         </div>
         <div class="nb-actions">
-          <button class="nb-icon" onclick="deleteSentence(${i})" title="刪除">🗑️</button>
+          <button class="nb-icon" onclick="deleteSentence(${i})" title="刪除">${icon('trash')}</button>
         </div>
       </div>
     `).join('');
@@ -599,10 +599,48 @@ function setColor(hex, el) {
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  t.innerHTML = msg;
   t.classList.add('show');
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function icon(name) {
+  const icons = {
+    mic: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>',
+    stop: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect width="16" height="16" x="4" y="4" rx="2"/></svg>',
+    send: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+    home: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+    book: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    notebook: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+    user: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>',
+    arrowLeft: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+    check: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    star: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    search: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+    settings: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+    close: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    messageCircle: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    pencil: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
+    target: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+    coffee: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>',
+    briefcase: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+    building: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><line x1="8" y1="6" x2="10" y2="6"/><line x1="14" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/></svg>',
+    plane: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>',
+    messageSquare: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
+    robot: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>',
+    smile: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+    volume: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
+    alertTriangle: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    checkCircle: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    bookOpen: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+    arrowRight: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+    dots: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>',
+  };
+  return icons[name] || '';
 }
 
 function escHtml(s) {
