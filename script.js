@@ -455,10 +455,24 @@ async function lookupWord(word) {
         ...(firstMeaning.synonyms||[]),
         ...(def.synonyms||[])
       ])].slice(0,5);
+      let translation = '';
+      if (state.apiKey) {
+        try {
+          const tr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.apiKey}`, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({contents:[{role:'user', parts:[{text:`Translate "${word}" to Traditional Chinese. Return ONLY the Chinese word/phrase, nothing else.`}]}], generationConfig:{maxOutputTokens:30}})
+          });
+          if (tr.ok) {
+            const td = await tr.json();
+            translation = td.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+          }
+        } catch(e) {}
+      }
       return {
         word: entry.word,
         phonetic,
         pos: firstMeaning.partOfSpeech || '',
+        translation,
         definition: def.definition || '',
         example: def.example || '',
         synonyms,
@@ -475,6 +489,7 @@ async function lookupWord(word) {
     word,
     phonetic: '/.../',
     pos: 'adjective',
+    translation: '',
     definition: `（找不到「${word}」的資料，請確認拼字或設定 API Key 使用 AI 查詢）`,
     example: '',
     synonyms: [],
@@ -488,16 +503,16 @@ async function lookupWordAI(word) {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        contents:[{role:'user', parts:[{text:`Look up the English word: "${word}". Return ONLY valid JSON with this exact structure, no other text: {"word":"...","phonetic":"...","pos":"...","definition":"...","example":"...","synonyms":["...","..."]}`}]}],
+        contents:[{role:'user', parts:[{text:`Look up the English word: "${word}". Return ONLY valid JSON with this exact structure, no other text: {"word":"...","phonetic":"...","pos":"...","translation":"...","definition":"...","example":"...","synonyms":["...","..."]}\n\ntranslation = Traditional Chinese translation of the word (just the word/phrase).\ndefinition = English definition.\nexample = ONE natural example sentence.`}]}],
         generationConfig:{maxOutputTokens:600}
       })
     });
-    if (!res.ok) return {word, phonetic:'', pos:'', definition:'查詢失敗，請稍後再試', example:'', synonyms:[], source:'error'};
+    if (!res.ok) return {word, phonetic:'', pos:'', translation:'', definition:'查詢失敗，請稍後再試', example:'', synonyms:[], source:'error'};
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
     return {...JSON.parse(text.match(/\{[\s\S]*\}/)?.[0]||'{}'), source:'ai'};
   } catch(e) {
-    return {word, phonetic:'', pos:'', definition:'查詢失敗，請稍後再試', example:'', synonyms:[], source:'error'};
+    return {word, phonetic:'', pos:'', translation:'', definition:'查詢失敗，請稍後再試', example:'', synonyms:[], source:'error'};
   }
 }
 
@@ -513,13 +528,14 @@ function renderVocabResult(r) {
       <div class="vocab-word">${escHtml(r.word)}</div>
       ${r.phonetic ? `<div class="vocab-phon">${escHtml(r.phonetic)}</div>` : ''}
       ${r.pos ? `<span class="vocab-pos">${escHtml(r.pos)}</span>` : ''}
+      ${r.translation ? `<div class="vocab-trans">${escHtml(r.translation)}</div>` : ''}
       <div class="vocab-def">${escHtml(r.definition)}</div>
       ${r.example ? `<div class="vocab-ex">"${escHtml(r.example)}"</div>` : ''}
       <div class="vocab-actions">
         <button class="action-btn ${alreadySaved?'saved':''}" id="save-word-btn" onclick="saveWord(${JSON.stringify(JSON.stringify(r))})">
           ${alreadySaved ? `${icon('check')} 已加入單字本` : `${icon('plus')} 加入單字本`}
         </button>
-        ${r.example ? `<button class="action-btn" onclick="saveSentence('${escAttr(r.example)}','單字查詢')">${icon('messageCircle')} 收藏例句</button>` : ''}
+        ${r.example ? `<button class="action-btn" onclick="saveSentence('${escAttr(r.example)}','${escAttr(r.word)} 例句')">${icon('messageCircle')} 收藏例句</button>` : ''}
         <button class="action-btn" onclick="speakText('${escAttr(r.word)}')">${icon('volume')} 發音</button>
       </div>
       ${synHtml ? `<div class="syn-section"><div class="syn-label">同義詞</div><div class="syn-chips">${synHtml}</div></div>` : ''}
@@ -532,7 +548,7 @@ function saveWord(rJson) {
   if (state.words.some(w => w.word.toLowerCase() === r.word.toLowerCase())) {
     showToast('已在單字本中'); return;
   }
-  state.words.unshift({word:r.word, phonetic:r.phonetic||'', definition:r.definition||'', example:r.example||'', synonyms:r.synonyms||[], date:new Date().toLocaleDateString('zh-TW')});
+  state.words.unshift({word:r.word, phonetic:r.phonetic||'', translation:r.translation||'', definition:r.definition||'', example:r.example||'', synonyms:r.synonyms||[], date:new Date().toLocaleDateString('zh-TW')});
   saveStorage();
   showToast(`「${escHtml(r.word)}」已加入單字本 ${icon('check')}`);
   const btn = document.getElementById('save-word-btn');
@@ -566,6 +582,7 @@ function renderNotebook() {
       <div class="nb-item">
         <div class="nb-body">
           <div class="nb-word">${escHtml(w.word)}</div>
+          ${w.translation ? `<div class="nb-trans">${escHtml(w.translation)}</div>` : ''}
           <div class="nb-def">${escHtml(w.definition)}</div>
         </div>
         <div class="nb-actions">
