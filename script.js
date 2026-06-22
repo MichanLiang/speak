@@ -85,7 +85,13 @@ function applyPrefs() {
   if (p.lang) document.getElementById('pref-lang').value = p.lang;
   if (p.accent) document.getElementById('pref-accent').value = p.accent;
   if (p.diff) document.getElementById('pref-diff').value = p.diff;
-  if (p.speed) document.getElementById('pref-speed').value = p.speed;
+  if (p.speed) {
+    document.getElementById('pref-speed').value = p.speed;
+    state.speed = parseFloat(p.speed);
+    document.querySelectorAll('.spd').forEach(b => {
+      b.classList.toggle('active', parseFloat(b.getAttribute('onclick')?.match(/[\d.]+/)?.[0]||'1') === state.speed);
+    });
+  }
   if (p.subtitles === false) document.getElementById('toggle-sub').classList.remove('on');
   if (p.feedback === false) document.getElementById('toggle-feedback').classList.remove('on');
   if (p.themeColor) {
@@ -438,6 +444,9 @@ function setSpeed(btn, val) {
   document.querySelectorAll('.spd').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   state.speed = val;
+  state.prefs.speed = String(val);
+  document.getElementById('pref-speed').value = val;
+  saveStorage();
 }
 
 function handleVocabInput(val) {
