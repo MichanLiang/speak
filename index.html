@@ -365,8 +365,10 @@ function handleEmailAuth() {
 function signInGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   document.getElementById('auth-error').textContent = '';
-  firebase.auth().signInWithPopup(provider).then(() => {
-    // sign-in handled by onAuthStateChanged
+  firebase.auth().signInWithPopup(provider).then(result => {
+    state.user = result.user;
+    updateProfileUI(result.user);
+    showScreen('screen-home');
   }).catch(err => {
     console.error('Google sign-in error:', err);
     if (err.code === 'auth/unauthorized-domain') {
@@ -374,7 +376,7 @@ function signInGoogle() {
     } else if (err.code === 'auth/popup-blocked') {
       document.getElementById('auth-error').textContent = '彈出視窗被封鎖，請允許彈出視窗後重試';
     } else if (err.code === 'auth/popup-closed-by-user') {
-      document.getElementById('auth-error').textContent = '';
+      // do nothing
     } else {
       document.getElementById('auth-error').textContent = err.message;
     }
