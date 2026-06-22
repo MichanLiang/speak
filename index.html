@@ -365,12 +365,19 @@ function handleEmailAuth() {
 function signInGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   document.getElementById('auth-error').textContent = '';
-  firebase.auth().signInWithPopup(provider).catch(err => {
+  firebase.auth().signInWithPopup(provider).then(() => {
+    // sign-in handled by onAuthStateChanged
+  }).catch(err => {
     console.error('Google sign-in error:', err);
-    const msg = err.code === 'auth/unauthorized-domain'
-      ? '此網域未授權，請在 Firebase Console → Authentication → Settings → Authorized domains 加入此網域'
-      : err.message;
-    document.getElementById('auth-error').textContent = msg;
+    if (err.code === 'auth/unauthorized-domain') {
+      document.getElementById('auth-error').textContent = '此網域未授權，請在 Firebase Console → Authentication → Settings → Authorized domains 加入此網域';
+    } else if (err.code === 'auth/popup-blocked') {
+      document.getElementById('auth-error').textContent = '彈出視窗被封鎖，請允許彈出視窗後重試';
+    } else if (err.code === 'auth/popup-closed-by-user') {
+      document.getElementById('auth-error').textContent = '';
+    } else {
+      document.getElementById('auth-error').textContent = err.message;
+    }
   });
 }
 
