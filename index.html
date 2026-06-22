@@ -75,17 +75,8 @@
     <input id="custom-topic" class="custom-input" placeholder="描述你想練習的情境，例如：在咖啡廳點飲料..." />
     <button class="start-btn" onclick="startPractice()"><span data-icon="mic" style="vertical-align:middle"></span> 開始練習</button>
     <div class="section-head" style="margin-bottom:10px">最近練習</div>
-    <div class="recent-grid">
-      <div class="rc-card" onclick="startPractice()">
-        <div class="rc-label">3 天前</div>
-        <div class="rc-title">職場面試</div>
-        <div class="rc-meta"><span class="score-pill">82 分</span><span style="font-size:11px;color:var(--text3)">中級</span></div>
-      </div>
-      <div class="rc-card" onclick="startPractice()">
-        <div class="rc-label">5 天前</div>
-        <div class="rc-title">點餐情境</div>
-        <div class="rc-meta"><span class="score-pill">75 分</span><span style="font-size:11px;color:var(--text3)">初級</span></div>
-      </div>
+    <div class="recent-grid" id="recent-grid">
+      <div class="rc-empty">還沒有練習紀錄，開始練習吧！</div>
     </div>
     <div style="height:16px"></div>
   </div>

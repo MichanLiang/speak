@@ -11,6 +11,7 @@ let state = {
   speaking: false,
   words: [],
   sentences: [],
+  practiceLog: [],
   nbTab: 'words',
   vocabTimer: null,
   lastScreen: 'screen-home',
@@ -31,6 +32,7 @@ const DIFFICULTY_LABELS = {beginner:'初級',intermediate:'中級',advanced:'進
 window.onload = () => {
   loadFromStorage();
   renderNotebook();
+  renderRecentGrid();
   setupSpeechRecognition();
   speechSynthesis.getVoices();
 };
@@ -40,6 +42,7 @@ function loadFromStorage() {
     state.apiKey = localStorage.getItem('su_apikey') || '';
     state.words = JSON.parse(localStorage.getItem('su_words') || '[]');
     state.sentences = JSON.parse(localStorage.getItem('su_sentences') || '[]');
+    state.practiceLog = JSON.parse(localStorage.getItem('su_practice') || '[]');
     state.prefs = JSON.parse(localStorage.getItem('su_prefs') || '{}');
     if (state.apiKey) {
       document.getElementById('api-key-input').value = state.apiKey;
@@ -55,6 +58,7 @@ function saveStorage() {
   try {
     localStorage.setItem('su_words', JSON.stringify(state.words));
     localStorage.setItem('su_sentences', JSON.stringify(state.sentences));
+    localStorage.setItem('su_practice', JSON.stringify(state.practiceLog));
     localStorage.setItem('su_prefs', JSON.stringify(state.prefs));
   } catch(e) {}
 }
@@ -153,6 +157,7 @@ function startPractice() {
   document.getElementById('send-btn').disabled = true;
   document.getElementById('tag-scenario').textContent = state.scenarioLabel;
   document.getElementById('tag-diff').textContent = DIFFICULTY_LABELS[state.difficulty];
+  logPractice();
   showScreen('screen-practice');
   initConversation();
 }
@@ -671,6 +676,39 @@ function setColor(hex, el) {
 }
 
 function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function renderRecentGrid() {
+  const el = document.getElementById('recent-grid');
+  if (!el) return;
+  if (!state.practiceLog.length) {
+    el.innerHTML = '<div class="rc-empty">還沒有練習紀錄，開始練習吧！</div>';
+    return;
+  }
+  el.innerHTML = state.practiceLog.slice(0, 20).map(p => `
+    <div class="rc-card" onclick="startPractice()">
+      <div class="rc-label">${escHtml(p.date)}</div>
+      <div class="rc-title">${escHtml(p.scenario)}</div>
+      <div class="rc-meta"><span class="score-pill">${escHtml(p.score)}</span><span style="font-size:11px;color:var(--text3)">${escHtml(DIFFICULTY_LABELS[p.diff]||p.diff)}</span></div>
+    </div>
+  `).join('');
+}
+
+function logPractice() {
+  state.practiceLog.unshift({
+    scenario: state.scenarioLabel,
+    diff: state.difficulty,
+    score: '進行中',
+    date: new Date().toLocaleDateString('zh-TW')
+  });
+  saveStorage();
+  renderRecentGrid();
+}
   const t = document.getElementById('toast');
   t.innerHTML = msg;
   t.classList.add('show');
