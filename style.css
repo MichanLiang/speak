@@ -1,15 +1,15 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --primary:#4A6CF7;
-  --primary-hover:#2D4ED8;
-  --primary-light:#EEF1FE;
-  --primary-dark:#1a3abf;
-  --success:#1D9E75;
-  --success-bg:#E1F5EE;
-  --warn:#BA7517;
-  --warn-bg:#FAEEDA;
-  --danger:#A32D2D;
-  --danger-bg:#FCEBEB;
+  --primary:#8A9BA8;
+  --primary-hover:#6F8291;
+  --primary-light:#E8EDF0;
+  --primary-dark:#5A6C7A;
+  --success:#9BA893;
+  --success-bg:#EDF1EA;
+  --warn:#C4A46C;
+  --warn-bg:#F4EDE0;
+  --danger:#C48A8A;
+  --danger-bg:#F4E8E8;
   --bg:#ffffff;
   --bg2:#F8F9FA;
   --bg3:#F1F3F5;
@@ -28,7 +28,7 @@
     --bg:#1C1C1E;--bg2:#2C2C2E;--bg3:#3A3A3C;
     --border:#38383A;--border2:#48484A;
     --text:#F2F2F7;--text2:#AEAEB2;--text3:#636366;
-    --primary-light:#1e2a5e;--shadow:0 1px 4px rgba(0,0,0,0.3);
+    --primary-light:#292e32;--shadow:0 1px 4px rgba(0,0,0,0.3);
   }
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:0}
@@ -81,7 +81,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .custom-input:focus{outline:none;border-color:var(--primary)}
 
 .start-btn{width:100%;padding:16px;background:var(--primary);color:#fff;border:none;border-radius:var(--radius-lg);font-size:17px;font-weight:600;cursor:pointer;transition:all .15s;margin-bottom:24px}
-.start-btn:hover{background:var(--primary-hover)}
+.start-btn:hover{filter:brightness(0.9)}
 .start-btn:active{transform:scale(.98)}
 
 .recent-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
@@ -149,7 +149,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .transcript:empty::before{content:attr(data-placeholder);color:var(--text3);font-style:italic;pointer-events:none}
 .send-btn{align-self:flex-end;padding:8px 18px;background:var(--primary);color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
 .send-btn:disabled{opacity:.35;cursor:not-allowed}
-.send-btn:not(:disabled):hover{background:var(--primary-hover)}
+.send-btn:not(:disabled):hover{filter:brightness(0.9)}
 
 #screen-vocab{padding:0}
 .search-bar{padding:14px 20px 10px;background:var(--bg);border-bottom:1px solid var(--border)}
