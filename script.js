@@ -183,8 +183,15 @@ async function initConversation() {
   if (firstMsg) {
     const {reply} = parseAIResponse(firstMsg);
     appendMsg('ai', reply);
-    state.history.push({role:'assistant', content: reply});
+    state.history.push({role:'assistant', content: firstMsg});
+    trimHistory();
     if (document.getElementById('toggle-sub').classList.contains('on')) speakText(reply);
+  }
+}
+
+function trimHistory() {
+  if (state.history.length > 20) {
+    state.history = state.history.slice(-20);
   }
 }
 
@@ -195,12 +202,12 @@ async function callAI(messages, isFirst=false) {
   try {
     const contents = isFirst ? messages : [
       ...state.history.map(m => ({role:m.role, parts:[{text:m.content}]})),
-      messages[messages.length-1]
+      {role:messages[messages.length-1].role, parts:[{text:messages[messages.length-1].content}]}
     ];
     const body = {
       contents: isFirst ? [{role:'user', parts:[{text:'(start the conversation)'}]}] : contents,
       systemInstruction: {parts:[{text:state.systemPrompt}]},
-      generationConfig: {maxOutputTokens:1000}
+      generationConfig: {maxOutputTokens:1000, temperature:0.9}
     };
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.apiKey}`, {
       method: 'POST',
@@ -240,7 +247,7 @@ function demoResponse(isFirst) {
   };
   const arr = demos[state.scenario] || demos.casual;
   const idx = state.history.filter(h=>h.role==='assistant').length;
-  const reply = arr[Math.min(idx, arr.length-1)];
+  const reply = arr[idx % arr.length];
   return `${reply}\n---FEEDBACK---\n{"corrections":[],"alternatives":[],"praise":"Keep it up!"}`;
 }
 
@@ -273,7 +280,8 @@ async function sendUserMsg() {
   removeTyping();
 
   const {reply, feedback} = parseAIResponse(raw);
-  state.history.push({role:'assistant', content: reply});
+  state.history.push({role:'assistant', content: raw});
+  trimHistory();
 
   const showFeedback = document.getElementById('toggle-feedback').classList.contains('on');
   appendMsg('ai', reply, showFeedback ? feedback : null);
