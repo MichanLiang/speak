@@ -183,6 +183,7 @@ async function initConversation() {
   if (firstMsg) {
     const {reply} = parseAIResponse(firstMsg);
     appendMsg('ai', reply);
+    state.history.push({role:'user', content:'(start the conversation)'});
     state.history.push({role:'assistant', content: reply});
     trimHistory();
     if (document.getElementById('toggle-sub').classList.contains('on')) speakText(reply);
