@@ -709,6 +709,8 @@ function logPractice() {
   saveStorage();
   renderRecentGrid();
 }
+
+function toast(msg) {
   const t = document.getElementById('toast');
   t.innerHTML = msg;
   t.classList.add('show');
@@ -761,4 +763,102 @@ function escHtml(s) {
 function escAttr(s) {
   if (!s) return '';
   return String(s).replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+}
+
+// ─── Firebase Auth ────────────────────────────────────────────────
+document.querySelectorAll('[data-icon]').forEach(el => {
+  const name = el.dataset.icon;
+  el.innerHTML = icon(name) || el.innerHTML;
+});
+
+firebase.initializeApp({
+  apiKey: "AIzaSyBvFZ-xBNoj57HCJ9ATTvVxvnI7TRCTV2k",
+  authDomain: "speak-37745.firebaseapp.com",
+  projectId: "speak-37745",
+  storageBucket: "speak-37745.firebasestorage.app",
+  messagingSenderId: "860882720671",
+  appId: "1:860882720671:web:e302ca11dd49c5bc5fcfaa"
+});
+
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    state.user = user;
+    updateProfileUI(user);
+    showScreen('screen-home');
+  } else {
+    state.user = null;
+    updateProfileUI(null);
+    showScreen('screen-login');
+  }
+});
+
+function updateProfileUI(user) {
+  const avatar = document.getElementById('p-avatar');
+  const name = document.getElementById('p-name');
+  const email = document.getElementById('p-email');
+  if (user) {
+    const displayName = user.displayName || user.email || '訪客';
+    avatar.textContent = displayName.charAt(0);
+    name.textContent = displayName;
+    email.textContent = user.email || (user.isAnonymous ? '匿名訪客' : '');
+  } else {
+    avatar.textContent = '?';
+    name.textContent = '未登入';
+    email.textContent = '';
+  }
+}
+
+let isRegisterMode = false;
+function toggleAuthMode() {
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('auth-submit-btn').textContent = isRegisterMode ? '註冊' : '登入';
+  document.getElementById('auth-toggle-btn').textContent = isRegisterMode ? '登入' : '註冊';
+  document.getElementById('auth-toggle-text').textContent = isRegisterMode ? '已有帳號？' : '還沒有帳號？';
+  document.getElementById('auth-error').textContent = '';
+}
+
+function handleEmailAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = '請填寫電子郵件與密碼'; return; }
+  if (password.length < 6) { errEl.textContent = '密碼至少需要 6 個字元'; return; }
+  const btn = document.getElementById('auth-submit-btn');
+  btn.disabled = true; btn.textContent = '處理中...';
+  const auth = firebase.auth();
+  (isRegisterMode ? auth.createUserWithEmailAndPassword(email, password) : auth.signInWithEmailAndPassword(email, password))
+    .catch(err => {
+      errEl.textContent = err.message;
+      btn.disabled = false; btn.textContent = isRegisterMode ? '註冊' : '登入';
+    });
+}
+
+function signInGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  document.getElementById('auth-error').textContent = '';
+  firebase.auth().signInWithPopup(provider).then(result => {
+    state.user = result.user;
+    updateProfileUI(result.user);
+    showScreen('screen-home');
+  }).catch(err => {
+    console.error('Google sign-in error:', err);
+    if (err.code === 'auth/unauthorized-domain') {
+      document.getElementById('auth-error').textContent = '此網域未授權，請在 Firebase Console → Authentication → Settings → Authorized domains 加入此網域';
+    } else if (err.code === 'auth/popup-blocked') {
+      document.getElementById('auth-error').textContent = '彈出視窗被封鎖，請允許彈出視窗後重試';
+    } else if (err.code === 'auth/popup-closed-by-user') {
+      // do nothing
+    } else {
+      document.getElementById('auth-error').textContent = err.message;
+    }
+  });
+}
+
+function signInAnonymous() {
+  document.getElementById('auth-error').textContent = '';
+  firebase.auth().signInAnonymously().catch(err => {
+    console.error('Anonymous sign-in error:', err);
+    document.getElementById('auth-error').textContent = err.message;
+  });
 }
